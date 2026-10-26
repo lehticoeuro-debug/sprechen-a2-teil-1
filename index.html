@@ -26,7 +26,7 @@
            font-weight:700;font-size:.95rem;margin-bottom:18px}
 
   /* Stage */
-  .stage{position:relative;width:min(88vw,340px);height:min(118vw,440px);perspective:1200px;margin-bottom:22px}
+  .stage{position:relative;width:min(94vw,420px);height:min(120vw,500px);perspective:1200px;margin-bottom:22px}
   .deck-card{position:absolute;inset:0;border-radius:22px;
     background:repeating-linear-gradient(45deg,var(--card-back1) 0 14px,var(--card-back2) 14px 28px);
     border:6px solid var(--white);box-shadow:0 8px 20px rgba(0,0,0,.18)}
@@ -48,15 +48,15 @@
   .face{position:absolute;inset:0;border-radius:22px;backface-visibility:hidden;
         -webkit-backface-visibility:hidden;border:6px solid var(--white);
         box-shadow:0 12px 28px rgba(0,0,0,.22);display:flex;flex-direction:column;
-        align-items:center;justify-content:center;padding:18px}
+        align-items:center;justify-content:center;padding:18px 10px}
   .back{background:repeating-linear-gradient(45deg,var(--card-back1) 0 14px,var(--card-back2) 14px 28px)}
   .back span{font-size:4rem}
   .front{background:#ffe1a8;transform:rotateY(180deg)}
   .front .label{position:absolute;top:16px;left:0;right:0;text-align:center;
         font-size:1rem;font-weight:700;color:var(--white);background:var(--accent);
         margin:0 18px;padding:8px;border-radius:12px;letter-spacing:.5px}
-  .front .word{font-size:clamp(1.7rem,8vw,2.5rem);font-weight:800;text-align:center;
-        color:var(--text);line-height:1.2;overflow-wrap:anywhere;hyphens:auto;max-width:100%}
+  .front .word{font-size:2.6rem;font-weight:800;text-align:center;
+        color:var(--text);line-height:1.2;white-space:nowrap;max-width:100%}
   .front .q{position:absolute;bottom:18px;font-size:2.4rem;opacity:.25;font-weight:900;color:var(--accent)}
 
   /* Buttons */
@@ -70,7 +70,6 @@
   .b-hint{background:var(--white);color:#e26d5c;border:3px solid #e26d5c}
   .b-next{background:#e26d5c;color:var(--white)}
   button{touch-action:manipulation;user-select:none;-webkit-user-select:none}
-  .front .word.long{font-size:clamp(1.4rem,6.6vw,2rem)}
   @media (max-width:420px){
     body{padding:12px 12px 32px}
     .sub{margin-bottom:10px}
@@ -81,7 +80,7 @@
     .txt{font-size:1rem}
   }
   @media (max-height:640px){
-    .stage{height:min(118vw,440px,52vh);width:min(88vw,340px,39vh)}
+    .stage{height:min(120vw,500px,55vh);width:min(94vw,420px,44vh)}
   }
   .hidden{display:none!important}
 
@@ -283,6 +282,19 @@ function updateCounter(){
   deck.classList.toggle("empty", pile.length===0);
 }
 
+/* Chữ luôn nằm trên một hàng: thu nhỏ cỡ chữ đến khi vừa chiều rộng thẻ */
+function fitWord(){
+  const front=word.parentElement;
+  const cs=getComputedStyle(front);
+  const avail=front.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);
+  let size=42;                       // px, cỡ tối đa
+  word.style.fontSize=size+"px";
+  while(word.scrollWidth>avail && size>14){
+    size-=1; word.style.fontSize=size+"px";
+  }
+}
+window.addEventListener("resize",()=>{if(current) fitWord()});
+
 function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 
 function draw(){
@@ -295,7 +307,7 @@ function draw(){
   card.classList.remove("flipped","drawing");
   card.classList.add("show");
   void card.offsetWidth;
-  setTimeout(()=>{word.textContent=current.w;word.classList.toggle("long",current.w.length>=12)},250);
+  setTimeout(()=>{word.textContent=current.w;fitWord()},250);
   card.classList.add("drawing");
   setTimeout(()=>{card.classList.remove("drawing");card.classList.add("flipped")},560);
   setTimeout(()=>{busy=false;afterDraw()},1350);
